@@ -1,0 +1,141 @@
+syntax = "proto3";
+
+package grpc_limits;
+
+import "google/protobuf/timestamp.proto";
+
+option java_multiple_files = true;
+option java_package = "grpc.server.app.fxLimit";
+option java_outer_classname = "FxLimit";
+option objc_class_prefix = "RTG";
+
+// Limit service
+service LimitService {
+  // Get limits by key
+  rpc GetLimitsByKey(GetLimitsByKeyRequest) returns (GetLimitsByKeyResponse);
+
+}
+
+// The request to get limits by key
+message GetLimitsByKeyRequest {
+  LimitKey limitKey = 1;
+  RevokedFilter revokedFilter = 2;
+  Paginator paginator = 3;
+}
+
+
+// The response to get limits by key
+message GetLimitsByKeyResponse {
+  repeated Limit limits = 1;
+}
+
+// Limit Key
+message LimitKey {
+  string customerDocument = 1;
+  string partnerID = 2;
+  string offerID = 3;
+  Category category = 4;
+  LimitType type = 5;
+}
+
+// Limit
+message Limit {
+  LimitKey limitKey = 1;
+  string id = 2;
+  CurrencyAmount currencyAmount = 3;
+  Balance balance = 4;
+  Version version = 5;
+  bool revoked = 6;
+  repeated Event events = 7;
+}
+
+// The request to assign a limit
+message Authorship {
+  string author = 1;
+  string comment = 2;
+}
+
+// Currency amount
+message CurrencyAmount {
+  string currency = 1;
+  double amount = 2;
+}
+
+
+
+// Balance to Limit
+message Balance {
+  google.protobuf.Timestamp startDate = 1;
+  google.protobuf.Timestamp endDate = 2;
+  double availableAmount = 3;
+  double usedAmount = 4;
+}
+
+// Event to Limit
+message Event {
+  Authorship authorship = 1;
+  string id = 2;
+  google.protobuf.Timestamp date = 3;
+  EventType type = 4;
+  google.protobuf.Timestamp expirationDate = 5;
+  TransactionType transactionType = 6;
+  double amount = 7;
+}
+
+// Version to Limit
+message Version {
+  string createdBy = 1;
+  google.protobuf.Timestamp createdAt = 2;
+  string lastUpdatedBy = 3;
+  google.protobuf.Timestamp lastUpdatedAt = 4;
+  int32 number = 5;
+}
+
+// Limit categories
+enum Category {
+  UNKNOWN_CATEGORY = 0;
+  FINANCIAL_CAPACITY = 1;
+  NATIONAL_TRANSFER = 2;
+}
+
+// Limit types
+enum LimitType {
+  UNKNOWN_TYPE = 0;
+  BUY_CURRENCY = 1;
+  SELL_CURRENCY = 2;
+  IMPORT = 3;
+  EXPORT = 4;
+  GENERAL = 5;
+  TED = 6;
+  PIX = 7;
+}
+
+// Transaction types
+enum TransactionType {
+  UNKNOWN_TRANSACTION = 0;
+  DEBIT_TRANSACTION = 1;
+  CREDIT_TRANSACTION = 2;
+}
+
+// Event types
+enum EventType {
+  ALL_EVENTS = 0;
+  CREATE_LIMIT = 1;
+  INCREASE_AMOUNT_LIMIT = 2;
+  RENEW_LIMIT = 3;
+  REVOKE_LIMIT = 4;
+  TRANSACTION = 5;
+}
+
+// Limit filter
+enum RevokedFilter {
+  ALL_LIMITS = 0;
+  REVOKED = 1;
+  NOT_REVOKED = 2;
+}
+
+// Paginator
+message Paginator {
+  int64 limit = 1;
+  int64 offset = 2;
+}
